@@ -11,6 +11,11 @@ A varitation of the Naija Whot Game, written with React Native.
 *(blah blah blah ...)*
 
 
+## First of all
+
+`npm install`
+
+
 ## Launching with Expo
 
  `npm start` or `yarn start`
