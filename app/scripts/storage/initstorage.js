@@ -18,19 +18,12 @@ global.storage = storage;
 // Initializes Default storage data
 export async function loadAppData() {
 
-	// alert('Cleared !');
-	// storage.remove({
-	// 	key: 'app'
-	// });
-
 	return storage.load({ key: 'app' })
 		.then(x => {
 			global.appData = x;
 		})
 		.catch(async _ => {
 			global.appData = await initializeAppData(storage);
-
-			// alert('restored !');
 		});
 }
 
