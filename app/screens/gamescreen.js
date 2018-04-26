@@ -5,6 +5,7 @@ import {
 	Text,
 	Image,
 	StyleSheet,
+	Dimensions,
 	ImageBackground,
 	DeviceEventEmitter,
 } from 'react-native';
@@ -50,6 +51,9 @@ import Card from 'app/components/game/gamecard.js';
 // Sort Button
 import SortButton from 'app/components/game/sort_button.js';
 
+
+// Device height
+const height = Dimensions.get('window').height;
 
 
 export default class GameScreen extends React.Component {
@@ -151,7 +155,14 @@ export default class GameScreen extends React.Component {
 
 		global.currGame = game;
 
-		// game restarted
+		// max number of cards a player can see
+		this.cardsPerView = cardsViewLimit(height);
+
+
+		////////////////////
+		// game restarted //
+		////////////////////
+
 		if (newgame) {
 			this.setState({
 				gameWon: null,
@@ -170,7 +181,7 @@ export default class GameScreen extends React.Component {
 		let cpuCards = state.cards.cpu,
 			usrCards = state.cards.player;
 
-		let limit = cardsViewLimit();
+		let limit = this.cardsPerView;
 
 		// cards mapped as Components
 		let cpuCards_C = cpuCards.slice(0,limit).map((obj, i)=> cardComponent(obj, 'cpucard', null, i)),
@@ -486,7 +497,7 @@ export default class GameScreen extends React.Component {
 	sortCards(state, cards, shuffle = false, reRender = true) {
 
 		let top = state.cards.gameCards[0],
-			l = cardsViewLimit();
+			l = cardsViewLimit( height );
 
 		// cyclic shift
 		for (let i = 0; cards.length >= l && i < l; i+=1){
@@ -606,9 +617,30 @@ function cardComponent(o, cardowner, onpress=_=>_, idx){
  *  How many cards can the user see on
  *   the game screen ( truncated )
  */
-function cardsViewLimit(){
-	// TODO: Calculate this based on device width
-	return 5;
+function cardsViewLimit(deviceWidth){
+	/*
+	  Various device widths,
+		and the `cards per view (limit)` on the game screen.
+
+	   These are actually the device heights,
+     	but the games orientation is 'landscape', hence 'widths'.
+	 */
+	let d_widths = [
+		[[1920], 9],
+		[[1280,1600], 8],
+		[[800,854], 7],
+		[[600], 6],
+		[[300,400,480], 5],
+		[[280], 4],
+	];
+
+	let dw = deviceWidth;
+	for (let [widths, limit] of d_widths){
+		if (widths.includes(dw) || dw >= widths[0]){
+			return limit;
+		}
+	}
+	return 2;
 }
 
 
@@ -664,7 +696,7 @@ let deckPanelStyle = {
 	width: "100%",
 	height: "100%",
 	backgroundColor: 'rgba(0,0,0,0.7)',
-	flexDirection: 'row'
+	flexDirection: 'row',
 };
 
 
