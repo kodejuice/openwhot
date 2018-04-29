@@ -91,23 +91,38 @@ export default class GameScreen extends React.Component {
 		} else {
 			saveData(appData, 'user', 'gameInProgress', currGame.gameState);
 		}
+
+		delete global.gameActive;
 	}
 
 
 	beginGame() {
 
-		let tc = currGame.gameState.cards.gameCards[0];
+		///////////////////////////
+		// stop game intro sound //
+		///////////////////////////
+		global.gameActive = true;
+		if (global.gameIntroSound){
+			global.gameIntroSound.stopAsync();
+			clearTimeout(global.gameIntroSoundTimer);
+			global.gameIntroSoundTimer = null;
+		}
+
+		let tc = currGame.gameState.cards.gameCards[0],
+			turn = currGame.gameState.gameTurn.who;
 
 		if (tc.special && [1,2,5,8,14,20].includes(tc.value)) {
+			let spk = currGame.gameState.gameTurn[turn];
+
 			// Play voice
 			if (tc.value === 20)
-				voice.Speak(tc.whotValue, 'player'); // "Give me {shape}"
+				voice.Speak(tc.whotValue, spk); // "Give me {shape}"
 			else
-				voice.Speak(tc.value, 'player');
+				voice.Speak(tc.value, spk);
 		}
 
 		// cpu to play first ?
-		if (currGame.gameState.gameTurn.who === 'cpu'){
+		if (turn === 'cpu'){
 			this.cpuPlay(currGame);
 		}
 	}
@@ -310,7 +325,8 @@ export default class GameScreen extends React.Component {
 	// market cards press
 	marketPress(animateFn, p = 'player') {
 		let game = currGame,
-			n = game.gameState.cards[p].length;
+			n = game.gameState.cards[p].length,
+			prevCard = game.gameState.cards.gameCards[0];
 
 		currGame.lastPlayed = null;
 
@@ -330,6 +346,14 @@ export default class GameScreen extends React.Component {
 		if (game.gameState.gameTurn.who !== p){
 			// play sound (invalid)
 			return;
+		}
+
+		// if previous card was a holdon/suspension
+		//  => say 'Continue'
+		if ([1,8].includes(prevCard.value)){
+			if (prevCard.played_by == p && !prevCard.old && prevCard.special){
+				voice.Speak('Continue', p);
+			}
 		}
 
 		game.play(p, 'market', null);
@@ -356,7 +380,8 @@ export default class GameScreen extends React.Component {
 	// players card press
 	playerCardPress(card, animateFn) {
 		const game = currGame, p = 'player',
-			p_cards = game.gameState.cards[p];
+			p_cards = game.gameState.cards[p],
+			prevCard = game.gameState.cards.gameCards[0];
 
 		if (game.gameState.gameTurn.who !== p){
 			// play sound (invalid)
@@ -373,6 +398,9 @@ export default class GameScreen extends React.Component {
 
 		if (game._playerHasCard(p, card, cards)) {
 
+			// cardplay sound effect
+			voice.sfx('invalid');
+
 			if (card.type === 'whot') {
 				if (p_cards.length == 1){
 					// "Game won"
@@ -380,6 +408,15 @@ export default class GameScreen extends React.Component {
 					return this.gameWinHandler(p);
 				}
 				return this.setState({shapesModal: true});
+			}
+
+			// if previous card was a holdon/suspension
+			// ad current card isnt
+			//  => say 'Continue'
+			if ([1,8].includes(prevCard.value) && ![1,8].includes(card.value)){
+				if (prevCard.played_by == p && !prevCard.old && prevCard.special){
+					voice.Speak('Continue', p);
+				}
 			}
 
 			game.play(p, card, null, null, moves.msg === 'defended');
@@ -428,9 +465,6 @@ export default class GameScreen extends React.Component {
 
 		setTimeout(_=>{
 			if (mv === 'market'){
-				if ([1, 8].includes(prevCard)){
-					voice.Speak('Continue', p);
-				}
 				return this.marketPress(null, p);
 			}
 
@@ -485,6 +519,8 @@ export default class GameScreen extends React.Component {
 
 			voice.Speak('Check up', p);
 			this.setState({gameWon: p});
+
+			voice.sfx((p === 'player') ? 'youwin' : 'youlose');
 		}
 	}
 

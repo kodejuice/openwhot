@@ -11,6 +11,8 @@ import {
 	DeviceEventEmitter
 } from 'react-native';
 
+import voice from 'app/scripts/voice-api/voice.js';
+
 import { Col, Row, Grid } from "react-native-easy-grid";
 
 
@@ -48,11 +50,43 @@ export default class Home extends React.Component {
 		'grandmaster': 'red'
 	};
 
+	async playIntro() {
+		let self = this;
+
+		if (appData.settings.music){
+			global.gameIntroSound = await voice.sfx('intro');
+
+			global.gameIntroSoundTimer = setTimeout(_=>{
+				if (appData.settings.music && !global.gameActive){
+					self.playIntro();
+				} else {
+					clearTimeout(global.gameIntroSoundTimer);
+					global.gameIntroSoundTimer = null;
+				}
+			}, 32e3);
+		}
+	}
+
+	gameIntroSoundWatch() {
+		let self = this;
+		setInterval(_=>{
+			if (!global.gameActive && !global.gameIntroSoundTimer){
+				self.playIntro();
+			}
+		}, 1000);
+	}
+
 	componentWillMount() {
 		let self = this;
-		DeviceEventEmitter.addListener('goBack',
-			_=> self.setState({})
+		self.playIntro();
+
+		DeviceEventEmitter.addListener('goBack', _=>{
+				self.setState({});
+				self.playIntro();
+			}
 		);
+
+		self.gameIntroSoundWatch();
 	}
 
 	render() {
