@@ -63,7 +63,7 @@ class Pause extends React.Component {
 					self.setState({})
 				}}/>
 
-				<Button title={`${r[global.currGame.gameState.difficulty]}`} color='#888' click={_=>_}/>
+				<Button title={`${r[global.currGame.gameState.difficulty]}`} color='#24272a' click={_=>_}/>
 
 				<Button title='Restart' click={_ => {
 					restart();
