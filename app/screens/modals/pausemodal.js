@@ -4,12 +4,13 @@ import Modal from 'react-native-modal';
 import { Col, Row, Grid } from "react-native-easy-grid";
 
 import {
-	Text,
 	View,
-	TouchableOpacity,
-	ImageBackground,
+	Text,
+	Linking,
 	FlatList,
-	Linking
+	ImageBackground,
+	TouchableOpacity,
+	DeviceEventEmitter,
 } from 'react-native';
 
 import { Button } from 'app/components/buttons.js';
@@ -31,8 +32,6 @@ class Pause extends React.Component {
 
 	constructor(p) {
 		super(p);
-
-		// stop any playing sound
 	}
 
 	render() {
@@ -69,11 +68,12 @@ class Pause extends React.Component {
 				<Button title='Restart' click={_ => {
 					restart();
 					this.props.close();
-
-					voice.Speak('Game restarted');
 				}}/>
 
 				<Button title='Abort' color='red' click={_ => {
+					// refresh home page (update rating)
+					DeviceEventEmitter.emit('goBack', {});
+
 					global.navigator.goBack(null);
 				}}/>
 			</View>
