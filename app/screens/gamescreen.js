@@ -170,7 +170,7 @@ export default class GameScreen extends React.Component {
 
 		global.currGame = game;
 
-		// max number of cards a player can see
+		// max number of cards a player can see in their deck
 		this.cardsPerView = cardsViewLimit(height);
 
 
@@ -657,8 +657,8 @@ function cardComponent(o, cardowner, onpress=_=>_, idx){
 
 
 /**
- *  How many cards can the user see on
- *   the game screen ( truncated )
+ *  How many of the users cards can they see on
+ *   their deck
  */
 function cardsViewLimit(deviceWidth){
 	/*
