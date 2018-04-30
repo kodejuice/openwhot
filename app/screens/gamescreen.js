@@ -330,9 +330,8 @@ export default class GameScreen extends React.Component {
 
 		currGame.lastPlayed = null;
 
-		if (game.gameState.cards.market.length === 0){
-			// play sound (no market)
-			return;
+		if (game.gameState.cards.market.length === 0){ // :)
+			return voice.sfx('invalid');
 		}
 
 		if (p == 'player'){
@@ -344,8 +343,7 @@ export default class GameScreen extends React.Component {
 
 
 		if (game.gameState.gameTurn.who !== p){
-			// play sound (invalid)
-			return;
+			return voice.Speak('wait', 'cpu');
 		}
 
 		// if previous card was a holdon/suspension
@@ -359,7 +357,10 @@ export default class GameScreen extends React.Component {
 		game.play(p, 'market', null);
 		n = game.gameState.cards[p].length - n;
 
-		// play sound (market) n times
+		// play (market pick sound) n times
+		for (let i=0; i<n; i+=1){
+			voice.sfx('market');
+		}
 
 		// last picked
 		currGame.pickCount = n;
@@ -384,26 +385,22 @@ export default class GameScreen extends React.Component {
 			prevCard = game.gameState.cards.gameCards[0];
 
 		if (game.gameState.gameTurn.who !== p){
-			// play sound (invalid)
-			return;
+			return voice.Speak('wait', 'cpu');
 		}
 
 		const moves = game.moves(p),
 			cards = moves.cards;
 
 		if (cards.length === 0){
-			// play sound (invalid)
-			return;
+			return voice.sfx('invalid');
 		}
 
 		if (game._playerHasCard(p, card, cards)) {
 
-			// cardplay sound effect
-			voice.sfx('invalid');
-
 			if (card.type === 'whot') {
 				if (p_cards.length == 1){
-					// "Game won"
+					// 1 whot card remaining,
+					//  player wins!
 					p_cards.length = 0;
 					return this.gameWinHandler(p);
 				}
@@ -411,7 +408,7 @@ export default class GameScreen extends React.Component {
 			}
 
 			// if previous card was a holdon/suspension
-			// ad current card isnt
+			// and current card isn't
 			//  => say 'Continue'
 			if ([1,8].includes(prevCard.value) && ![1,8].includes(card.value)){
 				if (prevCard.played_by == p && !prevCard.old && prevCard.special){
@@ -421,9 +418,11 @@ export default class GameScreen extends React.Component {
 
 			game.play(p, card, null, null, moves.msg === 'defended');
 			currGame.lastPlayed = 'player';
+
+			// cardplay sound effect
+			voice.sfx('cardplay');
 		} else {
-			// play sound (invalid)
-			return;
+			return voice.sfx('invalid');
 		}
 
 		// re-render gamescreen (after gamecard animation)
@@ -432,6 +431,7 @@ export default class GameScreen extends React.Component {
 			// Play voice
 			if (p_cards.length > 1){
 				if (moves.msg) {
+					voice.sfx(moves.msg);
 					voice.Speak(moves.msg, p);
 				} else if (card.special) {
 					voice.Speak(card.value, p)
@@ -471,9 +471,13 @@ export default class GameScreen extends React.Component {
 			game.play(p, mv, null, null, msg === 'defended');
 			currGame.lastPlayed = 'cpu';
 
+			// cardplay sound effect
+			voice.sfx('cardplay');
+
 			// Play voice
 			if (cpu_cards.length > 1){
 				if (msg){
+					voice.sfx(msg);
 					voice.Speak(msg, p);
 				}
 				else if (mv.special){
@@ -565,6 +569,9 @@ export default class GameScreen extends React.Component {
 
 			let card = game._toMove(['whot', shape]);
 			game.play(p, card);
+
+			// cardplay sound effect
+			voice.sfx('cardplay');
 
 			currGame.lastPlayed = 'player';
 			self.setState({status: gameStatus(game.gameState)});

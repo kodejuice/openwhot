@@ -1,29 +1,37 @@
 
 import Expo from 'expo';
+import sounds from 'app/assets/sound/voices.js';
+
+
+// voice file
+const voiceFile = (which)=> (player)=> sounds[player][which];
+
+// sfx file
+const sfxFile = (which)=> sounds[which];
 
 
 const specialMessages = {
-	1: 'Hold On',
-	2: 'Pick Two',
-	5: 'Pick Three',
-	8: 'Suspension',
-	14: 'Go Market',
+	1: voiceFile('holdon'),
+	2: voiceFile('picktwo'),
+	5: voiceFile('pickthree'),
+	8: voiceFile('suspension'),
+	14: voiceFile('gomarket'),
 
-	'defended': 'Defended',
-	'continue': 'Continue',
-	'check up': 'Check up',
-	'last card': 'Last Card !',
-	'game restarted': 'Game restarted',
+	'defended': voiceFile('defended'),
+	'continue': voiceFile('continue'),
+	'check up': voiceFile('checkup'),
+	'last card': voiceFile('lastcard'),
+	'wait': voiceFile('wait'),
 };
 
-const cardNames = {
-	'star': 'Give me Star',
-	'box': 'Give me Square',
-	'plus': 'Give me Cross',
-	'circ': 'Give me Circle',
-	'tri': 'Give me Triangle',
-};
 
+const cardRequests = {
+	'star': voiceFile('star'),
+	'box': voiceFile('square'),
+	'plus': voiceFile('cross'),
+	'circ': voiceFile('circle'),
+	'tri': voiceFile('triangle'),
+};
 
 
 class Voice {
@@ -31,27 +39,49 @@ class Voice {
 		if (!appData.settings.voice)
 			return;
 
-		m = (''+m).toLowerCase();
+		m = `${m}`.toLowerCase();
 
-		if (m in specialMessages)
+		if (m in specialMessages){
 			return this.play(specialMessages[m], who);
-		else if (m in cardNames)
-			return this.play(cardNames[m], who);
+		}
+		else if (m in cardRequests){
+			return this.play(cardRequests[m], who);
+		}
 
-		return this.play(m);
-	}
-
- 
-	play(msg, player) {
-		Expo.Speech.speak(msg)
+		return;
 	}
 
 
-	sound(msg) {
+	// play voice feedback
+	async play(file, player) {
+		const sound = file(player);
+		const soundObject = new Expo.Audio.Sound();
+
+		try {
+			await soundObject.loadAsync(sound);
+			await soundObject.playAsync();
+		} catch (error) {
+			alert(error);
+		}
+	}
+
+
+	// play sound effect
+	async sfx(which) {
 		if (!appData.settings.music)
 			return;
 
-		// TODO: convert TTS to pre-recorded voice
+		const sfx = sfxFile(which.toLowerCase());
+		const soundObject = new Expo.Audio.Sound();
+
+		try {
+			await soundObject.loadAsync(sfx);
+			soundObject.playAsync();
+
+			return soundObject;
+		} catch (error) {
+			alert(error);
+		}
 	}
 }
 
