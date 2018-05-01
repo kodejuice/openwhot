@@ -358,8 +358,10 @@ export default class GameScreen extends React.Component {
 		n = game.gameState.cards[p].length - n;
 
 		// play (market pick sound) n times
-		for (let i=0; i<n; i+=1){
-			voice.sfx('market');
+		for (let i=0,j=0; i<n; i+=1, j=100){
+			setTimeout(_=>{
+				voice.sfx('market');
+			}, j);
 		}
 
 		// last picked
