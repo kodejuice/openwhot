@@ -158,8 +158,8 @@ export default class WhotAI {
 		return ({
 			'novice': 1,
 			'amateur': 4,
-			'competent': 6,
-			'proficient': 8,
+			'competent': 5,
+			'proficient': 7,
 			'grandmaster': 10,
 		})[this.gameState.difficulty];
 	}
