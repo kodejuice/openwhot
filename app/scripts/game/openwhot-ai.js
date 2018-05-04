@@ -144,13 +144,13 @@ export default class WhotAI {
 		for (let i=0, x; i<cards.length; i+=1){
 			x = cards[i].value;
 
-			if (this._isCompatible(topcard, x))
+			if (this._isCompatible(topcard, cards[i]))
 				point += 6;
 
 			if (this._isSpecial(x)){
 				point += this.specialCardsPoints[x];
 
-				if (this._isCompatible(topcard, x))
+				if (this._isCompatible(topcard, cards[i]))
 					specialMatch += 1;
 			}
 		}
