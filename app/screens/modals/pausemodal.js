@@ -32,6 +32,9 @@ class Pause extends React.Component {
 
 	constructor(p) {
 		super(p);
+
+		// save game state onPause
+		saveData(appData, 'user', 'gameInProgress', global.currGame.gameState);	
 	}
 
 	render() {
