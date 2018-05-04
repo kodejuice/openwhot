@@ -93,6 +93,8 @@ export default class GameScreen extends React.Component {
 		}
 
 		delete global.gameActive;
+
+		DeviceEventEmitter.emit('goBack', {});
 	}
 
 
