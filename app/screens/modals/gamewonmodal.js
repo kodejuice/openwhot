@@ -93,7 +93,7 @@ class GameWonView extends React.Component {
 
 
 	render (){
-		let rdiff = rating_diff = Math.round(appData.user.rating - this.oldRating);
+		let rdiff = Math.floor(appData.user.rating) - Math.floor(this.oldRating); // rating difference
 			rdiff = (rdiff >= 0) ? `+${rdiff}` : `${rdiff}`;
 
 		let rating = Math.floor(appData.user.rating);
