@@ -9,20 +9,13 @@
 import _ from 'lodash';
 import WhotAI from 'app/scripts/game/openwhot-ai.js';
 
-// 70% DONE
-
-
-
-// TODO: cardcount +/-  [play() / unplay()] 'market'
-// TODO: Add AI
 
 
 export default class WhotGame extends WhotAI {
 
-	constructor(obj, rules = {}) {
+	constructor(obj, rules = {}, difficulty) {
 		super();
 
-		// initialize default rules
 		this.setRules(rules);
 
 		if (_.isObject(obj.gameTurn)) {
@@ -32,14 +25,16 @@ export default class WhotGame extends WhotAI {
 			// update 'special' property of all cards,
 			//  incase of settings change
 
-			let cards = this.gameState.cards;
+			let {cards} = this.gameState;
 
-			for (var k in cards)
-				this._setSpecial(cards[k]);
+			for (var k in cards){
+				if (k !== 'market_count')
+					this._setSpecial(cards[k]);
+			}
 		}
 		else {
 			let _this = this, i = 0;
-			let market = this._initCards(), movesHistory = [];
+			let market = this._initCards(difficulty), movesHistory = [];
 			let customCards = obj.cards || {};
 
 			let player1Cards = this._fetchCards(market, customCards.player1 || 5),
@@ -68,12 +63,20 @@ export default class WhotGame extends WhotAI {
 					[obj.player1]: player1Cards,
 					[obj.player2]: player2Cards,
 
+					// market picks, (used for game state evaluation)
+					market_count: {
+						[obj.player1]: 0,
+						[obj.player2]: 0,
+					},
+
 					market
 				},
 
 				// AI ish (see openwhot-ai.js)
 				movesHistory
 			};
+
+			this.setDifficulty(difficulty);
 		}
 	}
 
@@ -81,7 +84,11 @@ export default class WhotGame extends WhotAI {
 	// return available playable cards for player
 	moves(player) {
 		let gameCard = this.gameState.cards.gameCards[0]; // top gamecard
-		let _cards = this.gameState.cards[player].slice(0); // copy of players
+		let _cards = this.gameState.cards[player].slice(0); // copy of players cards
+
+		if (_cards.length === 0){
+			return {cards: []};
+		}
 
 		let moves = [],
 			_this = this,
@@ -106,7 +113,7 @@ export default class WhotGame extends WhotAI {
 
 
 		let cards = [];
-		// Expand Whots(20) into all shapes
+		// Expand player 'Whot cards'<20> into all shapes
 		_cards.forEach(x => {
 			let c = x.type == 'whot' ? _this._expandWhot() : [x];
 			cards.push(...c);
@@ -142,12 +149,26 @@ export default class WhotGame extends WhotAI {
 				tc.old = (pickCount!==1 || v==14);
 			}
 
-			this.pick(player, pickCount, done);
+			if (!mm) {
+				// only pick card(s) 
+				//  if this wasnt a minimax call
+				this.pick(player, pickCount, done);
+			} else {
+				// if its minimax call,
+				//  just increment the market count of this player
+				this.gameState.cards.market_count[player] += pickCount;			
+			}
+	
+			if (mm) {
+				this.gameState.movesHistory.push({
+					type: 'market',
+					picks: pickCount,
+					turn: this.gameState.gameTurn.who
+				});
+			}
+
 			this._toggleTurn(player, true);
 
-			if (mm) this.gameState.movesHistory.push('market');
-
-			// inc (+) card count
 			return;
 		}
 
@@ -155,14 +176,14 @@ export default class WhotGame extends WhotAI {
 		// place card ontop gamecards stack //
 		//////////////////////////////////////
 
-		move.old = oldCard || false;
+		move.old = oldCard;
 		move.played_by = player;
 		move.turn = this.gameState.gameTurn.who; // current game turn ( useful to .unplay() )
 
 		this.gameState.cards.gameCards.unshift(move); // place card ontop game cards
 		this._removePlayerCard(player, move);         // remove played card from players deck
 
-		this.gameState.movesHistory.push('move');
+		if (mm) this.gameState.movesHistory.push(move);
 
 		// switch turn
 		this._toggleTurn(player);
@@ -176,10 +197,9 @@ export default class WhotGame extends WhotAI {
 	//  Used for AI move generation (minimax)
 	unplay(player, move) {
 
-		this.gameState.movesHistory.pop();
-
-		if (move === 'market'){
-			// dec (-) card count
+		if (move.type === 'market'){
+			this.gameState.cards.market_count[player] -= move.picks;
+			this.gameState.gameTurn.who = move.turn;
 			return;
 		}
 
@@ -189,7 +209,8 @@ export default class WhotGame extends WhotAI {
 		this.gameState.cards.gameCards.shift(); // remove from game cards
 
 		// new topcard
-		this.gameState.cards.gameCards[0].old = false;
+		if (this.gameState.cards.gameCards.length)
+			this.gameState.cards.gameCards[0].old = false;
 
 		// switch turn
 		this.gameState.gameTurn.who = move.turn;
@@ -228,8 +249,8 @@ export default class WhotGame extends WhotAI {
 
 
 	// initialize cards and shuffle
-	_initCards() {
-		let cards = [];
+	_initCards(level) {
+		let cards = [], self = this;
 		let pack = {
 			'whot': [20, 20, 20, 20, 20],
 			'star': [1, 2, 3, 4, 5, 7, 8],
@@ -239,10 +260,15 @@ export default class WhotGame extends WhotAI {
 			'circ': [1, 2, 3, 4, 5, 7, 8, 10, 11, 12, 13, 14],
 		};
 
+		if (level === 'competent'){
+			pack['whot'] = pack['whot'].slice(3);
+		}
+
 		for (var t in pack) {
 			if (pack.hasOwnProperty(t)) {
 				pack[t].forEach((x) => {
-					cards.push(this._toMove([t, x]));
+					if (!self._bannedCard(x, level))
+						cards.push(self._toMove([t, x]));
 				});
 			}
 		}
@@ -254,16 +280,27 @@ export default class WhotGame extends WhotAI {
 	// HELPERS //
 	/////////////
 
+	_bannedCard(x, d) {
+		if (!this._isSpecial(x))
+			return false;
+
+		if (d === 'grandmaster' || d === 'proficient') {
+			if (x === 20)
+				return true;
+
+			return ~~(Math.random()*2); // random between (1 and 0) => (true and false)
+		}
+		return false;
+	}
 
 	// reload game market cards
 	_reloadMarket(fn){
 		let played = this.gameState.cards.gameCards;
-		let market = this.gameState.cards.market;
+		let {market} = this.gameState.cards;
 
 		// get cards from played cards
-		for (let i=1, k=0; i < played.length-1; i+=1, k+=1){
-			market.push(played[i-k]);
-			played.splice(i-k, 1);
+		while (played.length > 1){
+			market.push(played.pop());
 		}
 
 		if (fn) fn();
@@ -297,10 +334,7 @@ export default class WhotGame extends WhotAI {
 
 		if (typeof items === 'number') {
 			while (cards.length < items) {
-				const r_index = _.random(0, market.length - 1);
-
-				cards.push(market[r_index]);
-				market.splice(r_index, 1); // remove picked card from base
+				cards.push(market.shift());
 			}
 		} else {
 			// fetch custom cards
@@ -324,7 +358,7 @@ export default class WhotGame extends WhotAI {
 		let moves = [],
 			_this = this;
 		let p = this._toMove(['whot', 20]);
-		let shapes = ['tri', 'box', 'plus', 'star', 'circ'];
+		let shapes = _.shuffle(['tri', 'box', 'plus', 'star', 'circ']);
 
 		shapes.forEach(x => {
 			moves.push(_this._extendObj({

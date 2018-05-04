@@ -33,6 +33,7 @@ const cardRequests = {
 	'tri': voiceFile('triangle'),
 };
 
+const MAX_ERROR = 5;
 
 class Voice {
 	Speak(m, who='player') {
@@ -61,7 +62,8 @@ class Voice {
 			await soundObject.loadAsync(sound);
 			await soundObject.playAsync();
 		} catch (error) {
-			alert(error);
+			if (MAX_ERROR--)
+				alert(error);
 		}
 	}
 
@@ -80,7 +82,8 @@ class Voice {
 
 			return soundObject;
 		} catch (error) {
-			alert(error);
+			if (MAX_ERROR--)
+				alert(error);
 		}
 	}
 }

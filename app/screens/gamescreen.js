@@ -136,23 +136,19 @@ export default class GameScreen extends React.Component {
 
 		if (newgame || params.mode === 'newgame'){
 
-			let p = _.shuffle(["player", "cpu"]);
+			let p = _.shuffle(["player", "cpu"]), level = 'novice';
+
+			if (appData.settings.rules.openCards){
+				level = !newgame
+					? params.diff
+					: appData.user.gameInProgress.difficulty
+			}
 
 			// init new game
 			game = new WhotGame({
 				player1: p[0],
 				player2: p[1]
-			}, appData.settings.rules);
-
-
-			// set difficulty
-			if (appData.settings.rules.openCards){
-				game.setDifficulty(
-					newgame
-					? appData.user.gameInProgress.difficulty
-					: params.diff
-				);
-			}
+			}, appData.settings.rules, level);
 
 			// store game state, so user gets to resume next time
 			saveData(appData, 'user', 'gameInProgress', game.gameState);
@@ -163,7 +159,7 @@ export default class GameScreen extends React.Component {
 
 			game.setDifficulty(
 				appData.settings.rules.opencards
-				? 'easy'
+				? 'novice'
 				: game.gameState.difficulty
 			);
 		}
@@ -382,7 +378,7 @@ export default class GameScreen extends React.Component {
 
 	// players card press
 	playerCardPress(card, animateFn) {
-		const game = currGame, p = 'player',
+		const game = currGame, p = 'player', self = this,
 			p_cards = game.gameState.cards[p],
 			prevCard = game.gameState.cards.gameCards[0];
 
@@ -451,10 +447,12 @@ export default class GameScreen extends React.Component {
 					return this.gameWinHandler(p);
 			}
 
-			// pass control to cpu if turn changed
-			if (game.gameState.gameTurn.who !== p){
-				this.cpuPlay(game);
-			}
+			setTimeout(_=>{
+				// pass control to cpu if turn changed
+				if (game.gameState.gameTurn.who !== p){
+					self.cpuPlay(game);
+				}
+			}, 30);
 		});
 
 	}
@@ -507,7 +505,7 @@ export default class GameScreen extends React.Component {
 				voice.Speak('Continue', p);
 			}
 
-		}, 250);
+		}, 300);
 	}
 
 
