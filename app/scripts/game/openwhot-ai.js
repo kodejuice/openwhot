@@ -36,16 +36,15 @@ export default class WhotAI {
 		// ...... //
 		////////////
 
-		//console.log(`move = '${best_move.move[0].value}-${best_move.move[0].type}', eval = '${best_move.move[1]}'`);
+		/*
+		if (best_move.move[0].value)
+			console.log(`move = '${best_move.move[0].value}-${best_move.move[0].type}', eval = '${best_move.move[1]}'`);
+		else
+			console.log(`move = '${best_move.move[0]}', eval = '${best_move.move[1]}'`);
+		*/
 
 		let e = best_move.move[1];
-		if (e == -this.CHECK_UP) {
-			// player wins if this move is made, so just "Go market!"
-			return ['market', ];
-		}
-		else {
-			return [best_move.move[0], best_move.move[2]];
-		}
+		return [best_move.move[0], best_move.move[2]];
 	}
 
 
@@ -58,7 +57,7 @@ export default class WhotAI {
 			player_cards_count = player_cards.length + gamecards.market_count[player];
 
 		let {cards, msg} = this.moves(player),
-			moves = cards,
+			moves = cards.concat('market'),
 			defended = (msg === 'defended');
 
 		if(depth == 0 || !player_cards_count){
@@ -66,9 +65,6 @@ export default class WhotAI {
 				return ((player=='cpu')?1:-1) * this.CHECK_UP;
 			}
 			return this.evaluate(this.gameState);
-		}
-		else if (moves.length === 0){
-			moves = ['market'];
 		}
 
 		let best, v;
