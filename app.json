@@ -6,5 +6,8 @@
 
         "sdkVersion": "22.0.0",
         "orientation": "landscape"
+    },
+    "android": {
+        "package": "com.kodejuice.openwhot"
     }
 }
