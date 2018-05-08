@@ -124,7 +124,7 @@ export default class WhotAI {
 
 		let card_points = {
 			cpu: self.cardPoints(cards.cpu, card_count.cpu),
-			player: self.cardPoints(cards.cpu, card_count.player)
+			player: self.cardPoints(cards.player, card_count.player)
 		};
 
 		return (card_points.cpu - card_points.player);
