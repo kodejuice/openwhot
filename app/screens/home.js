@@ -143,7 +143,12 @@ export default class Home extends React.Component {
 				{/* Home Screen */}
 				<Row size={90}>
 				    <Col style={{width: 280}}>
-					    <Row size={70}></Row>
+					    <Row size={70}>
+					    	<Image
+					    		style={{marginLeft: 100}}
+					    		source={require('app/assets/images/backgrounds/image.png')}
+					    	/>
+					    </Row>
 
 						{/* Game buttons */}
 					    <Row size={30}>
