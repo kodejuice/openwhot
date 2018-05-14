@@ -281,14 +281,11 @@ export default class WhotGame extends WhotAI {
 	/////////////
 
 	_bannedCard(x, d) {
-		if (!this._isSpecial(x))
+		if (x !== 20)
 			return false;
 
 		if (d === 'grandmaster' || d === 'proficient') {
-			if (x === 20)
-				return true;
-
-			return ~~(Math.random()*2); // random between (1 and 0) => (true and false)
+			if (x === 20) return true;
 		}
 		return false;
 	}

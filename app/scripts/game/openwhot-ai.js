@@ -27,7 +27,7 @@ export default class WhotAI {
 		let gameState = this.gameState;
 		this.gameState = _.cloneDeep(gameState);
 
-		let best_move = {move:[]}, depth = this.getDepth();
+		let best_move = {move:[cards[0]]}, depth = this.getDepth();
 		let max = this.alphabeta(depth, depth, -Infinity, Infinity, best_move);
 
 		this.gameState = gameState;
@@ -36,15 +36,20 @@ export default class WhotAI {
 		// ...... //
 		////////////
 
-		/*
-		if (best_move.move[0].value)
-			console.log(`move = '${best_move.move[0].value}-${best_move.move[0].type}', eval = '${best_move.move[1]}'`);
-		else
-			console.log(`move = '${best_move.move[0]}', eval = '${best_move.move[1]}'`);
-		*/
+		
+		// if (best_move.move[0].value)
+		// 	console.log(`move = '${best_move.move[0].value}-${best_move.move[0].type}', eval = '${best_move.move[1]}'`);
+		// else
+		// 	console.log(`move = '${best_move.move[0]}', eval = '${best_move.move[1]}'`);
+		
 
 		let e = best_move.move[1];
-		return [best_move.move[0], best_move.move[2]];
+
+		if (e === -this.CHECK_UP){
+			return ['market', ];
+		} else {
+			return [best_move.move[0], best_move.move[2]];
+		}
 	}
 
 
@@ -57,7 +62,7 @@ export default class WhotAI {
 			player_cards_count = player_cards.length + gamecards.market_count[player];
 
 		let {cards, msg} = this.moves(player),
-			moves = cards.concat('market'),
+			moves = cards, //.concat('market'),
 			defended = (msg === 'defended');
 
 		if(depth == 0 || !player_cards_count){
