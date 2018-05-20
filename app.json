@@ -4,6 +4,11 @@
         "slug": "open-whot",
         "version": "1.0.0",
 
+        "icon": "app/assets/icon.png",
+
+        "privacy": "public",
+        "githubUrl": "http://github.com/kodejuice/openwhot",
+
         "sdkVersion": "22.0.0",
         "orientation": "landscape"
     },
