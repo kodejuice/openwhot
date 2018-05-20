@@ -10,7 +10,6 @@
 }
 */
 
-// TODO: Recrop all numbered cards
 
 const imgs = {
 	// plane shapes
