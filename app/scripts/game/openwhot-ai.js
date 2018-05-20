@@ -41,15 +41,8 @@ export default class WhotAI {
 		// 	console.log(`move = '${best_move.move[0].value}-${best_move.move[0].type}', eval = '${best_move.move[1]}'`);
 		// else
 		// 	console.log(`move = '${best_move.move[0]}', eval = '${best_move.move[1]}'`);
-		
 
-		let e = best_move.move[1];
-
-		if (e === -this.CHECK_UP){
-			return ['market', ];
-		} else {
-			return [best_move.move[0], best_move.move[2]];
-		}
+		return [best_move.move[0], best_move.move[2]];
 	}
 
 
@@ -62,7 +55,7 @@ export default class WhotAI {
 			player_cards_count = player_cards.length + gamecards.market_count[player];
 
 		let {cards, msg} = this.moves(player),
-			moves = cards, //.concat('market'),
+			moves = cards.concat('market'),
 			defended = (msg === 'defended');
 
 		if(depth == 0 || !player_cards_count){
@@ -127,35 +120,7 @@ export default class WhotAI {
 			player: cards.player.length + cards.market_count.player,
 		};
 
-		let card_points = {
-			cpu: self.cardPoints(cards.cpu, card_count.cpu),
-			player: self.cardPoints(cards.player, card_count.player)
-		};
-
-		return (card_points.cpu - card_points.player);
-	}
-
-
-	// heuritstic card evalutaion
-	cardPoints(cards, cardlent) {
-		let point = 0,
-			specialMatch = 0,
-			topcard = this.gameState.cards.gameCards[0];
-
-		for (let i=0, x; i<cards.length; i+=1){
-			x = cards[i].value;
-
-			if (this._isCompatible(topcard, cards[i]))
-				point += 6;
-
-			if (this._isSpecial(x)){
-				point += this.specialCardsPoints[x];
-
-				if (this._isCompatible(topcard, cards[i]))
-					specialMatch += 1;
-			}
-		}
-		return (point + specialMatch - cardlent);
+		return (card_count.player - card_count.cpu);
 	}
 
 
