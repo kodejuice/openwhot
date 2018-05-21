@@ -16,28 +16,22 @@ Built with React Native.
 <img alt='Settings' src=./screenshots/settings_modal.png width=480/>
 
 
-Download packaged version [here]
+[Open Whot](https://exp.host/@kodejuice/open-whot) - Expo
 
-or 
+- [Download apk](./build/apk/openwhot.apk)
+- [Download ipa](./build/ipa/openwhot.ipa)
 
-### Build from source
+or
+
+#### - Launch on an Emulator
+
+Clone repo first
 
 ```bash
 $ git clone http://github.com/kodejuice/openwhot.git
 $ cd openwhot
 $ npm install
 ```
-
-#### - Launch with Expo
-
- `npm start` or `yarn start`
-
-Runs your app in development mode.
-
-Open it in the [Expo](https://expo.io) app on your phone.
-
-
-#### - Launch on an Emulator
 
 if you intend to run with an emulator, you need to eject this project from Create React Natives Build Script.
 
