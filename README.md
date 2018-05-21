@@ -1,4 +1,3 @@
-
 # Open Whot
 
 A varitation of the Naija Whot Game, where the players cards aren't hidden from each other.
