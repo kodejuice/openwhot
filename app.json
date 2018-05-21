@@ -13,6 +13,8 @@
         "orientation": "landscape"
     },
     "android": {
-        "package": "com.kodejuice.openwhot"
+        "package": "com.kodejuice.openwhot",
+
+        "icon": "app/assets/icon.png"
     }
 }

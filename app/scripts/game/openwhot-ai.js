@@ -12,7 +12,6 @@ export default class WhotAI {
 
 	CHECK_UP = 500;
 	player = { [-1]: 'cpu', [1]: 'player' };
-	specialCardsPoints = {[1]: 13, [2]: 17, [5]: 22, [8]: 13, [14]: 16, [20]: 30};
 
 	// get AI move
 	aiMove() {
