@@ -55,7 +55,7 @@ class HomeScreen extends React.Component {
 				{
 					this.state.appDataLoaded ? (
 						<Home />
-					) : <View><Text style={{color: '#fff'}}> Loading... </Text></View>
+					) : <View><Text style={{color: '#fff'}}> Initializing App storage (this may take time)... </Text></View>
 				}
 
 				</ImageBackground>
