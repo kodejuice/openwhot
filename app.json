@@ -7,14 +7,20 @@
         "icon": "app/assets/icon.png",
 
         "privacy": "public",
-        "githubUrl": "http://github.com/kodejuice/openwhot",
 
         "sdkVersion": "22.0.0",
-        "orientation": "landscape"
-    },
-    "android": {
-        "package": "com.kodejuice.openwhot",
+        "orientation": "landscape",
 
-        "icon": "app/assets/icon.png"
+        "description": "A varitation of the Naija Whot Game, where the players cards aren't hidden from each other.",
+
+        "android": {
+            "icon": "app/assets/icon.png",
+            "package": "com.kodejuice.openwhot"
+        },
+
+        "splash": {
+            "image": "app/assets/images/splash.png",
+            "backgroundColor": "#24272a"
+        }
     }
 }
