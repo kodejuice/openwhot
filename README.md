@@ -17,7 +17,7 @@ Built with React Native.
 
 [Open Whot](https://exp.host/@kodejuice/open-whot) - Expo
 
-- [Download apk](./build/apk/openwhot.apk)
+- [Download apk](https://exp-shell-app-assets.s3-us-west-1.amazonaws.com/android%2F%40kodejuice%2Fopen-whot-d1fb1a39-5d05-11e8-bb3e-0a580a780305-signed.apk)
 
 or
 
