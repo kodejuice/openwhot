@@ -37,8 +37,8 @@ export default class WhotGame extends WhotAI {
 			let market = this._initCards(difficulty), movesHistory = [];
 			let customCards = obj.cards || {};
 
-			let player1Cards = this._fetchCards(market, customCards.player1 || 5),
-				player2Cards = this._fetchCards(market, customCards.player2 || 5);
+			let player1Cards = this._fetchCards(market, customCards.player1 || 5, false, difficulty),
+				player2Cards = this._fetchCards(market, customCards.player2 || 5, false, difficulty);
 
 			// Get game starting card (card on top)
 			let gameCard = market[i];
@@ -222,7 +222,7 @@ export default class WhotGame extends WhotAI {
 		if (this.gameState.cards.market.length <= 6)
 			this._reloadMarket(fn);
 
-		let cards = this._fetchCards(this.gameState.cards.market, cardsCount);
+		let cards = this._fetchCards(this.gameState.cards.market, cardsCount, player=='player', this.gameState.difficulty);
 		this.gameState.cards[player].unshift(...cards);
 
 		return cards;
@@ -326,12 +326,24 @@ export default class WhotGame extends WhotAI {
 	}
 
 	// get random cards from market
-	_fetchCards(market, items) {
-		let cards = [];
+	_fetchCards(market, items, limit, level) {
+		let cards = [], crd, d = level;
 
 		if (typeof items === 'number') {
 			while (cards.length < items) {
-				cards.push(market.shift());
+				crd = market.shift();
+
+				if (limit){
+					// skip a special card
+					if (d === 'grandmaster' || d === 'proficient') {
+						if (this._isSpecial(crd.value)) {
+							market.push(crd);
+							continue;
+						}
+					}
+				}
+
+				cards.push(crd);
 			}
 		} else {
 			// fetch custom cards
