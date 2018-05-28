@@ -78,7 +78,7 @@ class Voice {
 
 		try {
 			await soundObject.loadAsync(sfx);
-			soundObject.playAsync();
+			await soundObject.playAsync();
 
 			return soundObject;
 		} catch (error) {
